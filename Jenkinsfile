@@ -13,21 +13,17 @@ pipeline {
                     branch: 'main'
             }
         }
-        stage('Verify Files') {
-            steps {
-                sh 'pwd'
-                sh 'ls -la'
-                sh 'find . -name "Dockerfile" -o -name "pom.xml"'
-            }
-        }
         stage('Build Maven') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('my-first-springboot') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
         stage('Docker Build & Push') {
             steps {
                 script {
+                    // Docker build from root, but it will copy from my-first-springboot/target/
                     def image = docker.build("${REGISTRY}/${IMAGE_NAME}:${TAG}")
                     image.push()
                     image.push("latest")
