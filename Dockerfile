@@ -2,7 +2,7 @@ FROM localhost:5000/openjdk:11
 
 ENV TZ=Asia/Calcutta
 
-WORKDIR /app
+WORKDIR /app-src
 
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} my-first-springboot-app.jar
