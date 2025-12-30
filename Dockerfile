@@ -6,7 +6,7 @@ COPY ${JAR_FILE} my-first-springboot-app.jar
 COPY my-first-springboot/target/classes/application.properties application.properties
 # COPY my-first-springboot/target/classes/log4j2.xml log4j2.xml
 # COPY my-first-springboot/target/classes/unlimited.hitachi.jks unlimited.hitachi.jks
-EXPOSE 8080
+EXPOSE 9090
 ENTRYPOINT ["java", \
   "-server", \
   "-Xmx1024m", \
