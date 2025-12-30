@@ -31,7 +31,7 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                dir('app-src') {
+                dir('app-src/my-first-springboot') {
                     sh 'mvn clean package -DskipTests'
                 }
             }
@@ -41,7 +41,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image using Dockerfile in package repo (root)
-                    def image = docker.build("${IMAGE_NAME}:${TAG}", ".")
+                    def image = docker.build("${IMAGE_NAME}:${TAG}", "app-src/my-first-springboot")
                     image.push()
                     image.push("latest")
                 }
