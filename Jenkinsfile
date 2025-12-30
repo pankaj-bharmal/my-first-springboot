@@ -19,16 +19,20 @@ pipeline {
 
         stage('Build Maven') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('my-first-springboot') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Docker Build & Push') {
             steps {
-                script {
-                    def image = docker.build("${REGISTRY}/${IMAGE_NAME}:${TAG}")
-                    image.push()
-                    image.push("latest")
+                dir('my-first-springboot') {
+                    script {
+                        def image = docker.build("${REGISTRY}/${IMAGE_NAME}:${TAG}")
+                        image.push()
+                        image.push("latest")
+                    }
                 }
             }
         }
@@ -40,7 +44,7 @@ pipeline {
                 docker rm ${IMAGE_NAME} || true
                 docker run -d \
                   --name ${IMAGE_NAME} \
-                  -p 9090:8080 \
+                  -p 8080:8080 \
                   ${REGISTRY}/${IMAGE_NAME}:${TAG}
                 """
             }
