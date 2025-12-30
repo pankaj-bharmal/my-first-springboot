@@ -1,4 +1,4 @@
-FROM localhost:5000/openjdk:11
+FROM localhost:5000/openjdk:17
 ENV TZ=Asia/Calcutta
 WORKDIR /app
 ARG JAR_FILE=my-first-springboot/target/*.jar
