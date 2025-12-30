@@ -1,78 +1,49 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'maven'   // Must match the Maven tool name in Jenkins global config
-    }
-
     environment {
-        DATE = "${new Date().format('yy.MM')}"
-        TAG  = "${DATE}.${BUILD_NUMBER}"
-        IMAGE_NAME = "localhost:5000/my-first-springboot-app"
-        CONTAINER_NAME = "my-first-springboot-app"
+        REGISTRY = "localhost:5000"
+        IMAGE_NAME = "my-first-springboot-app"
+        DATE = new Date().format('yy.MM')
+        TAG = "${DATE}.${BUILD_NUMBER}"
     }
 
     stages {
 
-        stage('Checkout Package Repo') {
+        stage('Checkout') {
             steps {
-                echo "Package repo is already checked out"
-            }
-        }
-
-        stage('Checkout App Source') {
-            steps {
-                dir('app-src') {
-                    git branch: 'main',
-                        url: 'https://github.com/pankaj-bharmal/my-first-springboot.git'
-                }
+                git url: 'https://github.com/pankaj-bharmal/my-first-springboot.git',
+                    branch: 'main'
             }
         }
 
         stage('Build Maven') {
             steps {
-                dir('app-src/my-first-springboot') {
-                    sh 'mvn clean package -DskipTests'
-                }
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Build Docker image using Dockerfile in package repo (root)
-                    def image = docker.build("${IMAGE_NAME}:${TAG}", "app-src/my-first-springboot")
+                    def image = docker.build("${REGISTRY}/${IMAGE_NAME}:${TAG}")
                     image.push()
                     image.push("latest")
                 }
             }
         }
 
-        stage('Deploy Container') {
+        stage('Deploy') {
             steps {
-                sh '''
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
-
-                docker pull ${IMAGE_NAME}:${TAG}
-
+                sh """
+                docker stop ${IMAGE_NAME} || true
+                docker rm ${IMAGE_NAME} || true
                 docker run -d \
-                  --name ${CONTAINER_NAME} \
-                  -e TZ=Asia/Calcutta \
-                  -p 9011:8080 \
-                  --restart=always \
-                  ${IMAGE_NAME}:${TAG}
-                '''
+                  --name ${IMAGE_NAME} \
+                  -p 9090:8080 \
+                  ${REGISTRY}/${IMAGE_NAME}:${TAG}
+                """
             }
-        }
-    }
-
-    post {
-        success {
-            echo "🚀 Deployment successful with tag ${TAG}"
-        }
-        failure {
-            echo "❌ Pipeline failed"
         }
     }
 }
