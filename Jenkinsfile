@@ -37,7 +37,7 @@ pipeline {
                 docker rm ${IMAGE_NAME} || true
                 docker run -d \
                   --name ${IMAGE_NAME} \
-                  -p 8080:8080 \
+                  -p 9090:8080 \
                   ${REGISTRY}/${IMAGE_NAME}:${TAG}
                 """
             }
